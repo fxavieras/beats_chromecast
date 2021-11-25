@@ -10,17 +10,6 @@ yt = YouTubeController()                                #init youtube handler ou
 
 wake_time = ""                                          #init wake_time string for scope - is this the right way to do this in python?
 
-def set_time():                                         #sets alarm time
-    global wake_time
-    wake_time = input("What time would you like to wake up?" + '\n')
-
-    if len(wake_time) == 4:                             #fix AM H:MM formats without "0" in front
-        wake_time = "0" + wake_time
-    
-    print("Alarm will start at " + wake_time)
-    print('\n' + "Press Spacebar at any time to reset alarm." + '\n')
-    scheduling()                                        #updates scheduler with new alarm time
-
 
 def beats():                                            #connects to chromecast, opens the player and plays the stream
     try:                                                #catch errors connecting to chromecast. chromecast may be off.
@@ -47,11 +36,23 @@ def beats():                                            #connects to chromecast,
         sleep(1)
 
     for i in range(3600):                               #1 hour
-        if keyboard.is_pressed('space'):
+        if keyboard.is_pressed('esc'):
             break
         sleep(1)
     cast.quit_app()
     print("stopping")
+
+
+def set_time():                                         #sets alarm time
+    global wake_time
+    wake_time = input("What time would you like to wake up?" + '\n')
+
+    if len(wake_time) == 4:                             #fix AM H:MM formats without "0" in front
+        wake_time = "0" + wake_time
+    
+    print("Alarm will start at " + wake_time)
+    print('\n' + "Press escape at any time to reset alarm." + '\n')
+    scheduling()                                        #updates scheduler with new alarm time
 
 
 def scheduling():                                       #updates scheduler with new wake_time info
@@ -59,7 +60,7 @@ def scheduling():                                       #updates scheduler with 
         global wake_time
         schedule.every().day.at(wake_time).do(beats)
     except:
-        print("Something went wrong scheduling the alarm. Please try again.")
+        print("Something went wrong scheduling the alarm. Please try again.")  #this is usually a bad user input
         set_time()
 
 
@@ -68,5 +69,5 @@ set_time()  #on startup
 while True:                                             #checks for tasks every 1s
     schedule.run_pending()
     sleep(1)
-    if keyboard.is_pressed('space'):                    #if space is pressed, reset alarm time
+    if keyboard.is_pressed('esc'):                    #if space is pressed, reset alarm time
         set_time()
