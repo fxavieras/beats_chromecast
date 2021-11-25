@@ -8,14 +8,18 @@ from pychromecast.controllers.youtube import YouTubeController
 print("init beats_chromecast -- hello!")
 yt = YouTubeController()                                #init youtube handler out here for scope
 
-wake_time = ""
+wake_time = ""                                          #init wake_time string for scope - is this the right way to do this in python?
 
-def set_time():
+def set_time():                                         #sets alarm time
     global wake_time
     wake_time = input("What time would you like to wake up?" + '\n')
+
+    if len(wake_time) == 4:                             #fix AM H:MM formats without "0" in front
+        wake_time = "0" + wake_time
+    
     print("Alarm will start at " + wake_time)
     print('\n' + "Press Spacebar at any time to reset alarm." + '\n')
-    scheduling()
+    scheduling()                                        #updates scheduler with new alarm time
 
 
 def beats():                                            #connects to chromecast, opens the player and plays the stream
@@ -38,29 +42,31 @@ def beats():                                            #connects to chromecast,
     print("Pour yourself a cup of coffee and take a deep breath..." + '\n')
     atexit.register(cast.quit_app)  #debug - closes youtube player when python script is closed
 
-    for i in range(30):                                 #fade in
+    for i in range(30):                                 #volume fade in
         cast.set_volume(i/30)
         sleep(1)
 
-    for i in range(3600):                   #1 hour
+    for i in range(3600):                               #1 hour
         if keyboard.is_pressed('space'):
             break
         sleep(1)
     cast.quit_app()
     print("stopping")
 
-def scheduling():
-    try:
+
+def scheduling():                                       #updates scheduler with new wake_time info
+    try:                                                #catches bad-format strings (non HH:MM)
         global wake_time
         schedule.every().day.at(wake_time).do(beats)
     except:
         print("Something went wrong scheduling the alarm. Please try again.")
         set_time()
 
-set_time()
+
+set_time()  #on startup
 
 while True:                                             #checks for tasks every 1s
     schedule.run_pending()
     sleep(0.1)
-    if keyboard.is_pressed('space'):
+    if keyboard.is_pressed('space'):                    #if space is pressed, reset alarm time
         set_time()
