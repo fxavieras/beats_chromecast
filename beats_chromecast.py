@@ -67,6 +67,6 @@ set_time()  #on startup
 
 while True:                                             #checks for tasks every 1s
     schedule.run_pending()
-    sleep(0.1)
+    sleep(1)
     if keyboard.is_pressed('space'):                    #if space is pressed, reset alarm time
         set_time()
